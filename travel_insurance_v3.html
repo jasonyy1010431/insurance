@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>旅平險 ＋ 旅遊不便險 保費試算</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1a3a5c;
+    --primary-light: #2563a8;
+    --accent: #e8700a;
+    --success: #16803c;
+    --success-light: #f0fdf4;
+    --bg: #f5f7fa;
+    --card-bg: #ffffff;
+    --border: #e2e8f0;
+    --border-light: #f1f5f9;
+    --text: #1e293b;
+    --text-secondary: #64748b;
+    --text-light: #94a3b8;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 17px;
+  }
+  .page { max-width: 1000px; margin: 0 auto; padding: 40px 24px 64px; }
+
+  /* Header */
+  .header {
+    background: var(--primary);
+    border-radius: var(--radius);
+    padding: 36px 36px 32px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: ''; position: absolute;
+    top: -50px; right: -50px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.05);
+  }
+  .header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .header h1 { font-size: 28px; font-weight: 700; color: #fff; line-height: 1.35; }
+  .header-badges { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+  .hbadge { font-size: 13px; padding: 5px 14px; border-radius: 20px; white-space: nowrap; font-weight: 600; }
+  .hbadge-a { background: rgba(255,255,255,.15); color: rgba(255,255,255,.9); }
+  .hbadge-b { background: var(--accent); color: #fff; }
+  .header-sub { font-size: 14px; color: rgba(255,255,255,.6); margin-top: 10px; }
+
+  /* Section title */
+  .section-title {
+    font-size: 14px; font-weight: 700; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: .08em;
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* Card */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.04);
+  }
+
+  /* Grid */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 4px; }
+  @media(max-width:580px){ .grid2 { grid-template-columns: 1fr; } }
+
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field label { font-size: 14px; font-weight: 700; color: var(--text-secondary); }
+
+  select {
+    width: 100%; padding: 13px 40px 13px 14px;
+    font-size: 16px; font-family: inherit;
+    border: 2px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 14px center;
+    color: var(--text); cursor: pointer; appearance: none;
+    transition: border-color .2s;
+  }
+  select:focus { outline: none; border-color: var(--primary-light); }
+
+  /* ── 原生 checkbox 樣式 ── */
+  .cb-row {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .cb-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .cb-row:first-child { padding-top: 0; }
+
+  /* 隱藏原生 checkbox，但保留功能 */
+  .cb-row input[type="checkbox"] {
+    width: 24px; height: 24px;
+    min-width: 24px;
+    margin-top: 3px;
+    cursor: pointer;
+    accent-color: var(--primary-light);
+    flex-shrink: 0;
+  }
+
+  .cb-body { flex: 1; }
+  .cb-label { display: flex; align-items: flex-start; gap: 14px; cursor: pointer; width: 100%; }
+  .cb-text { flex: 1; }
+  .cb-title { font-size: 17px; font-weight: 700; color: var(--text); }
+  .cb-desc { font-size: 13px; color: var(--text-secondary); margin-top: 4px; line-height: 1.7; }
+
+  /* Coverage tags */
+  .coverage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px; margin-top: 14px; padding-top: 14px;
+    border-top: 1px dashed var(--border);
+  }
+  .cov-item {
+    background: var(--success-light);
+    border-radius: 8px; padding: 7px 12px;
+    font-size: 13px; color: var(--success); font-weight: 600;
+  }
+  .cov-item span { color: var(--text-secondary); font-weight: 400; }
+
+  /* Result */
+  .result-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,.10), 0 8px 32px rgba(0,0,0,.06);
+    overflow: hidden;
+  }
+  .result-section-hd {
+    font-size: 13px; font-weight: 700;
+    letter-spacing: .07em; text-transform: uppercase;
+    color: var(--text-light);
+    padding: 18px 28px 10px;
+    background: var(--border-light);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .dot-blue { background: var(--primary-light); }
+  .dot-green { background: var(--success); }
+
+  .result-item {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 15px 28px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .result-item:last-of-type { border-bottom: none; }
+  .ri-label { font-size: 16px; font-weight: 600; color: var(--text); }
+  .ri-sub { font-size: 13px; color: var(--text-light); margin-top: 3px; }
+  .ri-price { font-size: 18px; font-weight: 700; color: var(--text); white-space: nowrap; padding-left: 16px; margin-top: 2px; }
+
+  .subtotal-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 28px;
+    background: var(--border-light);
+    border-bottom: 1px solid var(--border);
+  }
+  .subtotal-label { font-size: 15px; font-weight: 600; color: var(--text-secondary); }
+  .subtotal-price { font-size: 18px; font-weight: 700; color: var(--primary); }
+
+  .grand-total {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 28px 28px;
+    background: var(--primary);
+  }
+  .gt-label { font-size: 20px; font-weight: 700; color: rgba(255,255,255,.9); }
+  .gt-price { font-size: 46px; font-weight: 700; color: #fff; letter-spacing: -.5px; }
+  .gt-price span { font-size: 22px; font-weight: 500; margin-right: 4px; }
+
+  .empty-note { text-align: center; padding: 36px; color: var(--text-light); font-size: 16px; }
+
+  .page-note { font-size: 13px; color: var(--text-light); line-height: 1.9; margin-top: 20px; }
+  .page-note b { color: var(--text-secondary); }
+
+  /* NTA 固定勾選樣式 */
+  .cb-row input[type="checkbox"]:disabled { opacity: .5; cursor: default; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <h1>旅平險 ＋ 旅遊不便險<br>保費試算工具</h1>
+      <div class="header-badges">
+        <span class="hbadge hbadge-a">凱基人壽旅平險</span>
+        <span class="hbadge hbadge-b">新安東京海上不便險</span>
+      </div>
+    </div>
+    <p class="header-sub">套裝型・一般式・國外・已滿15足歲｜官網截圖精確數值</p>
+  </div>
+
+  <!-- 投保設定 -->
+  <p class="section-title">投保設定</p>
+  <div class="card">
+    <div class="grid2">
+      <div class="field">
+        <label for="days">投保天數</label>
+        <select id="days" onchange="calc()">
+          <option value="3">3 天</option>
+          <option value="4">4 天</option>
+          <option value="5" selected>5 天</option>
+          <option value="6">6 天</option>
+          <option value="7">7 天</option>
+          <option value="10">10 天</option>
+          <option value="12">12 天</option>
+          <option value="14">14 天</option>
+          <option value="20">20 天</option>
+          <option value="30">30 天</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="tier">旅平險保額組合（NTA / MT / HSC）</label>
+        <select id="tier" onchange="calc()">
+          <option value="A">100萬 / 10萬 / 10萬</option>
+          <option value="B">300萬 / 30萬 / 30萬</option>
+          <option value="C">500萬 / 50萬 / 50萬</option>
+          <option value="D">800萬 / 80萬 / 80萬</option>
+          <option value="E" selected>1,000萬 / 100萬 / 100萬</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 旅平險 -->
+  <p class="section-title">凱基人壽旅平險</p>
+  <div class="card">
+    <div class="cb-row">
+      <label class="cb-label">
+        <input type="checkbox" checked disabled>
+        <div class="cb-text">
+          <div class="cb-title">一般／水陸／航空意外身故・失能・關懷給付（NTA）</div>
+          <div class="cb-desc">主約，必選</div>
+        </div>
+      </label>
+    </div>
+    <div class="cb-row">
+      <label class="cb-label">
+        <input type="checkbox" id="chkMT" onchange="calc()">
+        <div class="cb-text">
+          <div class="cb-title">實支實付旅行傷害醫療給付（MT）</div>
+          <div class="cb-desc">意外傷害醫療費用，實支實付</div>
+        </div>
+      </label>
+    </div>
+    <div class="cb-row">
+      <label class="cb-label">
+        <input type="checkbox" id="chkHSC" checked onchange="calc()">
+        <div class="cb-text">
+          <div class="cb-title">新海外突發疾病醫療保險給付（HSC）</div>
+          <div class="cb-desc">住院・急診・門診・住院醫療補償，限國外適用</div>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <!-- 不便險 -->
+  <p class="section-title">新安東京海上 旅遊不便險</p>
+  <div class="card">
+    <div class="cb-row">
+      <label class="cb-label">
+        <input type="checkbox" id="chkCI" checked onchange="calc()">
+        <div class="cb-text">
+          <div class="cb-title">凱基人壽通路 國外旅遊不便險專案</div>
+          <div class="cb-desc">新安東京海上產險・2026.04.01 起適用費率</div>
+          <div class="coverage-grid">
+            <div class="cov-item">班機取消 <span>5萬</span></div>
+            <div class="cov-item">旅程更改 <span>3萬</span></div>
+            <div class="cov-item">班機延誤 <span>1萬2</span></div>
+            <div class="cov-item">行李延誤 <span>6,000元</span></div>
+            <div class="cov-item">行李損失 <span>6,000元</span></div>
+            <div class="cov-item">旅行文件 <span>3,000元</span></div>
+            <div class="cov-item">屋家竊盜 <span>10萬</span></div>
+            <div class="cov-item">班機改降 <span>2,000元</span></div>
+            <div class="cov-item">現金竊盜 <span>3,000元</span></div>
+            <div class="cov-item">助持事故 <span>10萬</span></div>
+            <div class="cov-item">緊急救援 <span>200萬</span></div>
+          </div>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <!-- 結果 -->
+  <p class="section-title">保費試算結果</p>
+  <div class="result-card" id="resultCard">
+    <div class="empty-note">請選擇天數與保額組合</div>
+  </div>
+
+  <p class="page-note">
+    ※ 旅平險數值來自凱基人壽官網實際截圖（50 組精確數據，誤差為零）。<br>
+    ※ 旅遊不便險費率依新安東京海上產險 <b>2026.04.01</b> 費率表，固定保額組合。<br>
+    ※ 本試算工具僅供參考，實際保費以各保險公司官網投保時為準。<br>
+    ※ 本專案限透過 E-Agent 行動投保系統作業，不適用國內旅遊，投保年齡 0–75 足歲。
+  </p>
+</div>
+
+<script>
+const TRAVEL={
+  A:{3:{nta:29,mt:9,hsc:24},4:{nta:38,mt:12,hsc:30},5:{nta:45,mt:14,hsc:36},6:{nta:50,mt:16,hsc:42},7:{nta:53,mt:17,hsc:45},10:{nta:61,mt:19,hsc:51},12:{nta:68,mt:21,hsc:57},14:{nta:74,mt:23,hsc:60},20:{nta:92,mt:29,hsc:76},30:{nta:114,mt:36,hsc:94}},
+  B:{3:{nta:88,mt:27,hsc:73},4:{nta:113,mt:35,hsc:94},5:{nta:138,mt:44,hsc:115},6:{nta:149,mt:47,hsc:124},7:{nta:160,mt:49,hsc:130},10:{nta:184,mt:57,hsc:151},12:{nta:200,mt:62,hsc:163},14:{nta:216,mt:68,hsc:178},20:{nta:261,mt:81,hsc:215},30:{nta:318,mt:99,hsc:260}},
+  C:{3:{nta:144,mt:45,hsc:118},4:{nta:188,mt:58,hsc:154},5:{nta:230,mt:72,hsc:188},6:{nta:248,mt:78,hsc:206},7:{nta:266,mt:83,hsc:221},10:{nta:303,mt:95,hsc:251},12:{nta:327,mt:103,hsc:272},14:{nta:352,mt:111,hsc:290},20:{nta:424,mt:133,hsc:351},30:{nta:512,mt:160,hsc:420}},
+  D:{3:{nta:230,mt:72,hsc:188},4:{nta:299,mt:93,hsc:245},5:{nta:368,mt:115,hsc:303},6:{nta:397,mt:124,hsc:327},7:{nta:427,mt:134,hsc:351},10:{nta:477,mt:149,hsc:393},12:{nta:511,mt:160,hsc:420},14:{nta:545,mt:170,hsc:448},20:{nta:657,mt:206,hsc:541},30:{nta:789,mt:247,hsc:650}},
+  E:{3:{nta:288,mt:90,hsc:236},4:{nta:375,mt:117,hsc:309},5:{nta:461,mt:144,hsc:378},6:{nta:497,mt:155,hsc:408},7:{nta:533,mt:166,hsc:439},10:{nta:590,mt:184,hsc:484},12:{nta:629,mt:196,hsc:514},14:{nta:668,mt:208,hsc:548},20:{nta:803,mt:250,hsc:659},30:{nta:963,mt:301,hsc:793}},
+};
+const TIER_LABEL={A:{nta:'100萬',mt:'10萬',hsc:'10萬'},B:{nta:'300萬',mt:'30萬',hsc:'30萬'},C:{nta:'500萬',mt:'50萬',hsc:'50萬'},D:{nta:'800萬',mt:'80萬',hsc:'80萬'},E:{nta:'1,000萬',mt:'100萬',hsc:'100萬'}};
+const CI={1:242,2:262,3:283,4:356,5:431,6:465,7:499,8:527,9:553,10:582,11:610,12:637,13:665,14:692,15:720,16:746,17:772,18:799,19:825,20:852,21:878,22:899,23:920,24:942,25:965,26:984,27:1005,28:1025,29:1046,30:1068,31:1087,32:1109,33:1130,34:1148,35:1169,36:1189,37:1210,38:1230,39:1250,40:1270,41:1291,42:1310,43:1332,44:1352,45:1372,46:1392,47:1412,48:1432,49:1452,50:1471,51:1492,52:1511,53:1533,54:1554,55:1573,56:1593,57:1612,58:1635,59:1654,60:1673,61:1688,62:1700,63:1714,64:1730,65:1742,66:1756,67:1769,68:1782,69:1796,70:1809,71:1823,72:1837,73:1850,74:1863,75:1879,76:1890,77:1905,78:1917,79:1930,80:1944,81:1959,82:1973,83:1984,84:1999,85:2013,86:2027,87:2039,88:2052,89:2067,90:2080,91:2091,92:2103,93:2117,94:2129,95:2142,96:2154,97:2166,98:2180,99:2193,100:2206,101:2219,102:2230,103:2244,104:2255,105:2269,106:2282,107:2294,108:2306,109:2317,110:2329,111:2344,112:2355,113:2368,114:2381,115:2394,116:2407,117:2417,118:2430,119:2442,120:2455,121:2464,122:2473,123:2482,124:2491,125:2500,126:2509,127:2519,128:2526,129:2537,130:2546,131:2556,132:2566,133:2574,134:2583,135:2591,136:2602,137:2611,138:2619,139:2629,140:2639,141:2647,142:2656,143:2665,144:2673,145:2683,146:2691,147:2702,148:2711,149:2719,150:2728,151:2735,152:2743,153:2750,154:2755,155:2763,156:2770,157:2778,158:2784,159:2790,160:2796,161:2803,162:2810,163:2818,164:2824,165:2830,166:2837,167:2843,168:2849,169:2855,170:2861,171:2871,172:2878,173:2885,174:2891,175:2896,176:2903,177:2908,178:2917,179:2923,180:2930};
+
+function fmt(n){ return 'NT$'+n.toLocaleString(); }
+
+function calc(){
+  const days = parseInt(document.getElementById('days').value);
+  const tier = document.getElementById('tier').value;
+  const hasMT  = document.getElementById('chkMT').checked;
+  const hasHSC = document.getElementById('chkHSC').checked;
+  const hasCI  = document.getElementById('chkCI').checked;
+
+  const t = TRAVEL[tier][days];
+  const lbl = TIER_LABEL[tier];
+
+  const ntaP = t.nta;
+  const mtP  = hasMT  ? t.mt  : 0;
+  const hscP = hasHSC ? t.hsc : 0;
+  const ciP  = hasCI  ? CI[days] : 0;
+  const travelTotal = ntaP + mtP + hscP;
+  const grand = travelTotal + ciP;
+
+  let html = '';
+
+  html += `<div class="result-section-hd"><div class="dot dot-blue"></div>凱基人壽旅平險</div>`;
+  html += `<div class="result-item"><div><div class="ri-label">NTA 意外身故・失能・關懷給付</div><div class="ri-sub">保額 ${lbl.nta} × ${days} 天</div></div><div class="ri-price">${fmt(ntaP)}</div></div>`;
+  if(hasMT)  html += `<div class="result-item"><div><div class="ri-label">MT 實支實付旅行傷害醫療</div><div class="ri-sub">保額 ${lbl.mt} × ${days} 天</div></div><div class="ri-price">${fmt(mtP)}</div></div>`;
+  if(hasHSC) html += `<div class="result-item"><div><div class="ri-label">HSC 新海外突發疾病醫療</div><div class="ri-sub">保額 ${lbl.hsc} × ${days} 天</div></div><div class="ri-price">${fmt(hscP)}</div></div>`;
+  html += `<div class="subtotal-row"><span class="subtotal-label">旅平險小計</span><span class="subtotal-price">${fmt(travelTotal)}</span></div>`;
+
+  if(hasCI){
+    html += `<div class="result-section-hd"><div class="dot dot-green"></div>新安東京海上 旅遊不便險</div>`;
+    html += `<div class="result-item"><div><div class="ri-label">凱基通路 國外旅遊不便險專案</div><div class="ri-sub">班機取消5萬・延誤1萬2・行李6,000・緊急救援200萬 等</div></div><div class="ri-price">${fmt(ciP)}</div></div>`;
+    html += `<div class="subtotal-row"><span class="subtotal-label">不便險小計</span><span class="subtotal-price">${fmt(ciP)}</span></div>`;
+  }
+
+  html += `<div class="grand-total"><span class="gt-label">兩險合計保費</span><span class="gt-price"><span>NT$</span>${grand.toLocaleString()}</span></div>`;
+  document.getElementById('resultCard').innerHTML = html;
+}
+
+calc();
+</script>
+</body>
+</html>
